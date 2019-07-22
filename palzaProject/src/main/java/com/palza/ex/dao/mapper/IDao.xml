@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.palza.ex.dao.IDao">
+		
+	<insert id="joinDao">
+	INSERT INTO MEMBER(ID, PWD, NAME, EMAIL, ADDRESS, TEL) 
+	VALUES(#{param1},#{param2},#{param3},#{param4},#{param5},#{param6})
+	</insert>
+	
+	<select id="loginDao" resultType="String">
+		SELECT PWD FROM MEMBER WHERE ID = #{param1}
+	</select>
+	   
+	<select id="findid" resultType="String">
+		SELECT ID FROM MEMBER WHERE NAME = #{param1} AND EMAIL = #{param2}
+	</select>
+
+	<select id="findpwd" resultType="String">
+		SELECT PWD FROM MEMBER WHERE ID = #{PARAM1}
+	</select>
+	   
+   <select id="totalCnt" resultType="_int">
+      select count(*) from product where categories = #{param1}
+   
+   </select>
+   
+   
+    <select id="productList" resultType="com.palza.ex.dto.productDto" parameterType="com.palza.ex.dto.pageMaker">
+  
+   	select rnum, pd_id, rg_id, pd_name, price, rg_date, img, ID
+			from (
+		select rownum as rnum, pd_id, rg_id, pd_name, price, rg_date, img, ID
+			from (
+				select a.pd_id, a.rg_id, a.pd_name, a.price, a.rg_date, img, b.ID from product a
+				left outer join cart_tb b on a.pd_id = b.pd_id and b.id=#{curId} where a.CATEGORIES = #{cate_id}
+				order by rg_date desc
+				)
+                
+			where rownum <![CDATA[   <  ]]>= #{end})
+			where rnum <![CDATA[   >  ]]>= #{start}
+			order by rnum
+ 
+   </select> 
+   
+   
+   <select id="allList" resultType="com.palza.ex.dto.productDto">
+        select rnum, pd_id, rg_id, pd_name, price, rg_date, img
+			from (
+		select rownum as rnum, pd_id, rg_id, pd_name, price, rg_date, img
+			from (
+					select pd_id, rg_id, pd_name, price, rg_date, img from product 
+				order by rg_date desc
+				)
+			where rownum <![CDATA[   <  ]]>=6)
+			where rnum <![CDATA[   >  ]]>= 1
+			order by rnum
+
+   </select> 
+   
+   
+   <insert id="additemDao" parameterType="com.palza.ex.dto.productDto">
+	INSERT INTO 
+	PRODUCT(pd_id,rg_id, pd_name, price, CATEGORIES, PD_DESC, IMG) 
+	VALUES
+	(pd_seq.nextval,#{rg_id},#{pd_name},#{price},#{categories},#{pd_desc},#{img})
+	</insert>
+	
+	
+	
+	<select id="wishCheck" resultType="_int">
+		select count(*) from cart_tb where id=#{param1} and pd_id=#{param2}
+	</select>
+
+
+	<insert id="putWish">
+		insert into cart_tb values (cart_seq.nextval, #{param1}, #{param2})
+	</insert>
+	
+	<delete id="backWish">
+      delete from cart_tb where id=#{param1} and pd_id= #{param2}
+  	</delete>
+	
+	
+
+	<select id="customerInfo" resultType="com.palza.ex.dto.infoDto">
+		select * from member where id=#{param1}
+	</select>
+	
+   <select id="modify" resultType="com.palza.ex.dto.infoDto">
+        select * from member where id= #{param1}
+     </select>     
+     
+     <select id="address" resultType="String">
+     SELECT ADDRESS FROM MEMBER WHERE ID = #{param1}
+     </select>
+	
+	<update id="updateinfo">
+      UPDATE MEMBER SET PWD = #{param1}, EMAIL = #{param2}, ADDRESS = #{param3}, TEL = #{param4} WHERE ID = #{param5}
+   </update>
+   
+   
+  
+   
+   <select id="itemView" resultType="com.palza.ex.dto.productDto">
+   
+   select a.pd_id, a.rg_id, a.pd_name, a.pd_desc, a.price, a.rg_date, a.categories, img, b.ID from product a
+   left outer join cart_tb b on a.pd_id = b.pd_id and b.id=#{param1} where a.pd_id=#{param2}
+
+   </select>
+   
+   <select id="buyItem" resultType="com.palza.ex.dto.productDto">
+   
+ 	select pd_id, rg_id, pd_name, pd_desc, price, rg_date, categories, img from product where pd_id=#{param1} 
+
+   </select>
+   
+   
+   
+   <select id="cartItem" resultType="com.palza.ex.dto.productDto">
+   select rownum as rnum, pd_id, rg_id, pd_name, price, rg_date, img from(
+     select a.pd_id, a.rg_id, a.pd_name, a.price, a.rg_date, a.img from product a
+            left outer join cart_tb b on a.pd_id = b.pd_id where b.id=#{param1} order by a.rg_date desc)
+   </select>
+   
+	
+</mapper>
